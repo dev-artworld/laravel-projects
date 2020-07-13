@@ -1,0 +1,26 @@
+{% extends 'master.twig' %}
+
+{% block body %}
+    <!-- BEGIN CONTAINER -->
+    <div class="wrapper">
+        <!-- BEGIN HEADER -->
+        <header class="page-header">
+            {{include('admin/topbar.twig')}}
+        </header>
+        <!-- END HEADER -->
+        <div class="container-fluid">
+            {% block content %}
+                {% include 'admin/dashboard.twig' %}
+            {% endblock %}
+            <!-- BEGIN FOOTER -->
+            <p class="copyright"> 2017 &copy; 
+                <a target="_blank" href="javascript:void(0)">WISHTRU</a> 
+            </p>
+            <a href="#index" class="go2top">
+                <i class="icon-arrow-up"></i>
+            </a>
+            <!-- END FOOTER -->
+        </div>
+    </div>
+    <!-- END CONTAINER -->
+{% endblock %}

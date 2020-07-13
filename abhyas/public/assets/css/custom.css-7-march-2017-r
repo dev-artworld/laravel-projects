@@ -1,0 +1,74 @@
+.pac-container{
+	z-index: 10510 !important;
+}
+#form_wizard_1 .help-block {
+  color: #4db5b5;
+  float: left;
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 0;
+  padding-left: 27%;
+  text-align: left;
+  width: 100%;
+}
+.form-control::-moz-placeholder {
+  color: #fe9a9a;
+  font-size: 13px;
+  font-style: italic;
+  opacity: 1;
+}
+
+.page-header .navbar .navbar-nav > li:hover > a {
+    background: #ff4455 none repeat scroll 0 0;
+    color: #fff;
+}
+
+.page-content-row .page-sidebar .navbar-nav > li > a:hover {
+    background: #ff4455 none repeat scroll 0 0;
+    color: #fff;
+}
+
+.breadcrumbs .breadcrumb li.active {
+    color: #ff4455;
+    text-transform: uppercase;
+}
+.tabbable-line > .nav-tabs > li.active {
+    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+    border-bottom: 4px solid #ff4455;
+    position: relative;
+}
+
+.btn.green:not(.btn-outline) {
+    background-color: #ff4455;
+    border-color: #ff4455;
+    color: #fff;
+}
+.tabbable-line > .nav-tabs > li:hover {
+    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+    border-bottom: 4px solid #ff4455;
+}
+
+.breadcrumbs .breadcrumb > li > a:hover {
+    color: #ff4455;
+    text-decoration: none;
+}
+
+.btn.green.active:not(.btn-outline), .btn.green:active:not(.btn-outline), .btn.green:hover:not(.btn-outline), .open > .btn.green.dropdown-toggle:not(.btn-outline) {
+    background-color: #23527c;
+    
+    color: #fff;
+}
+.btn.green.focus:not(.btn-outline), .btn.green:focus:not(.btn-outline) {
+    background-color: #ff4455;
+    
+    color: #fff;
+}
+
+
+.printchatbox 
+    {border-width:thick 10px;border-style: solid; 
+    background-color:#fff;
+    line-height: 2;color:#6E6A6B;font-size: 14pt;text-align:left;float: middle;
+    border: 3px solid #969293;width:80%;
+     height:2em;   
+}

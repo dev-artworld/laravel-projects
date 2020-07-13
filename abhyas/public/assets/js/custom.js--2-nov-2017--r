@@ -1,0 +1,455 @@
+$(function(){
+/**
+ * all response will be in below format
+ * {
+ *     success : boolean,
+ *     data : {resource_object} or null,
+ *     message : string,
+ *     code : integer
+ * }
+ */
+
+//jQuery("#location-list option[value='21']").attr("selected","selected");
+
+
+var $loader = $('#loader');
+jQuery('.jqte-test').jqte();
+
+$("#location-list").multiSelect();
+$("#beacon-list").multiSelect();
+var value = jQuery("#campaign-type").val();
+//console.log(value);
+jQuery(".campaign-type-select").hide(); 
+jQuery(".campaign-type-select").find("input").prop("disabled",true);
+jQuery(".campaign-type-select").find("textarea").prop("disabled",true);
+jQuery("#"+value+"-section").fadeIn("slow");
+jQuery("#"+value+"-section").find("input").prop("disabled",false);
+jQuery("#"+value+"-section").find("textarea").prop("disabled",false);
+/*
+* Path, 
+* script for active menu
+*/
+
+var FrameWorkURL = window.location.pathname.substring(1);
+//split the FrameWorkURL with slash
+var SplitFrameWorkURL = FrameWorkURL.split("/");
+if(SplitFrameWorkURL[0].length == 0){
+    jQuery("#navigationMenu").find("#dashboard-menu").addClass("active open selected");
+} else {
+    if(SplitFrameWorkURL[0] == "subscription" || SplitFrameWorkURL[0] == "invoices"){
+        SplitFrameWorkURL[0] = "profile";
+    }
+
+    //console.log(SplitFrameWorkURL[0]);
+
+    jQuery("#navigationMenu").find("#"+SplitFrameWorkURL[0]+"-menu").addClass("active open selected");
+}
+
+/*
+ * DataTables Table plug-in for jQuery
+ * CSS: //cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css
+ * JS: //cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js
+*/
+
+jQuery('#campaign_list').DataTable({
+    "aoColumnDefs" : [
+ {
+   'bSortable' : false,
+   'aTargets' : [ 0, 7, 8 ]
+ }]
+});
+//Disabled sorting
+jQuery("#checkbox_campaign").removeClass("sorting_asc");
+
+
+/*
+ * updateUserProfile
+ * update the user data using Ajax request
+*/
+/**
+ * send POST request to save data to resource server
+ * or send PUT request to update data on resource server
+ * based on data-method value
+*/
+
+$('#btn-user-save').click(function(e){
+    e.preventDefault();
+
+    var $button = $(this);
+    var $userdata = $('#profile-form-data').serialize();
+    var $method = $(this).attr('data-method');
+    $url = global.baseUrl+'profile/'+$('#user_id').val();
+
+    $button.prop('disabled', true);
+    $button.html('Saving...');
+    $loader.show();
+
+    $.ajax({
+        url: $url,
+        data: $userdata,
+        method : $method,
+        success: function(resp){
+
+            $(".profile-usertitle-job").text(resp.data.company);
+            $(".profile-usertitle-name").text(resp.data.first_name+" "+resp.data.last_name);
+            $(".profile-user-name").text("Hi, "+resp.data.first_name);
+        	$button.prop('disabled', false);
+            $button.html('Save Changes');
+            $loader.hide();
+	       	App.alert({ message: resp.message });
+        }
+    });
+
+});
+
+$('#btn-profile-picture-save').click(function(e){
+    e.preventDefault();
+
+    var $button = $(this);
+    var $userdata = $('#profile-picture-data').serialize();
+    var $method = $(this).attr('data-method');
+    $url = global.baseUrl+'profile/'+$('#user_id').val();
+    console.log($url);
+    $button.prop('disabled', true);
+    $button.html('Saving...');
+    $loader.show();
+    //update user name  
+    //jQuery(".profile-usertitle-name").text();
+    jQuery("#name").val();
+
+    $.ajax({
+        url: $url,
+        data: $userdata,
+        method : $method,
+        success: function(resp){
+        	$button.prop('disabled', false);
+            $button.html('Submit');
+            $loader.hide();
+            jQuery(".profile-usertitle-name").text();
+	       	App.alert({ message: resp.message });
+        }
+    });
+
+});
+
+$('#btn-user-password-save').click(function(e){
+    e.preventDefault();
+
+    var $button = $(this);
+    var $userdata = $('#user-password-data').serialize();
+    var $method = $(this).attr('data-method');
+    $url = global.baseUrl+'profile/'+$('#user_id').val();
+
+    $button.prop('disabled', true);
+    $button.html('Saving...');
+    $loader.show();
+
+    $.ajax({
+        url: $url,
+        data: $userdata,
+        method : $method,
+        success: function(resp){
+            $button.prop('disabled', false);
+            $button.html('Change Password');
+            $loader.hide();
+            App.alert({ message: resp.message });
+        }
+    });
+
+});
+
+
+$('.button-user-delete').click(function(e){
+    e.preventDefault();
+    var userButton = jQuery(this);
+    swal({
+      title: "Are you sure?",
+      text: "You will not be able to recover this User!",
+      type: "warning",
+      showCancelButton: true,
+
+      confirmButtonClass: 'btn-danger',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: "No, cancel plx!",
+      closeOnConfirm: false,
+      closeOnCancel: false
+    },
+    function(isConfirm) {
+      if(isConfirm) {
+        swal("Deleted!", "User has been deleted.", "success");
+        var data_user_id = userButton.attr("data-user-id");
+        var $button = $(".button-user-delete");
+        var $method = $(".button-user-delete").attr('data-method');
+        $url = window.location.origin+'/users/'+data_user_id;
+        $button.prop('disabled', true);
+
+        $loader.show();
+        var $userid = data_user_id; 
+        $('tr[row-id="'+$userid+'"]').remove();   
+        $.ajax({
+            url: $url,
+            data: {user_id: data_user_id},
+            method : $method,
+            success: function(resp){
+                $button.prop('disabled', false);
+                $loader.hide();
+                App.alert({ message: resp.message });
+            }
+        });
+      } else {
+        swal("Cancelled", "Cancelled :)", "error");
+      }
+    });
+
+});
+
+
+/*
+* Show Users
+* Edit Users
+*/
+
+$('.ShowEditUser').click(function(e){
+    e.preventDefault();
+
+    var $button = $(this);
+    $user_id = $(this).attr('data-user-id');
+    $modal_id = $(this).attr('data-modal');
+    $method = $(this).attr('data-method');
+    $button_icon = $(this).attr('data-button-icon');
+    $button_name = $(this).attr('data-name');
+    $url = window.location.origin+'/users/'+$user_id;
+
+    $button.prop('disabled', true);
+    $button.html('<i class="fa '+$button_icon+'"></i> '+$button_name);
+    $loader.show();
+
+    $.ajax({
+        url: $url,
+        method : $method,
+        success: function(resp){
+            var data = JSON.parse(resp);
+            $button.prop('disabled', false);
+            $button.html('<i class="fa '+$button_icon+'"></i> '+$button_name);
+            $loader.hide();
+            jQuery("#"+$modal_id+ " [name='id']").val(data.id);
+            jQuery("#"+$modal_id+ " [name='first_name']").val(data.first_name);
+            jQuery("#"+$modal_id+ " [name='last_name']").val(data.last_name);
+            jQuery("#"+$modal_id+ " [name='email']").val(data.email);
+            jQuery("#"+$modal_id+ " [name='dob']").val(data.dob);
+            jQuery("#"+$modal_id+ " [name='status']").val(data.status);
+        },
+        complete:function(){
+            jQuery("#"+$modal_id).modal("show");
+        }
+    });
+
+});
+
+/*
+* Users Group
+* Add Users Method: POST
+*/
+$('#user-submit-form').click(function(e){
+    e.preventDefault();
+
+    var $button = $(this);
+    var $method = $(this).attr('data-method');
+    $url = window.location.origin+'/users';
+
+    var form = $('#UserForm');
+    var error = $('.modal-body .alert-danger');
+    var success = $('.modal-body .alert-success');
+
+    form.validate({
+        doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
+        errorElement: 'span', //default input error message container
+        errorClass: 'help-block help-block-error', // default input error message class
+        focusInvalid: false, // do not focus the last invalid input
+        rules: {
+            first_name: {
+                minlength: 3,
+                required: true
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            password: {
+                minlength: 5,
+                required: true
+            },
+            rpassword: {
+                minlength: 5,
+                required: true,
+                equalTo: "#submit_form_password"
+            },
+            status: {
+                required: true
+            }            
+        },
+
+        invalidHandler: function (event, validator) { //display error alert on form submit   
+            success.hide();
+            error.show();
+            App.scrollTo(error, -200);
+        },
+
+        highlight: function (element) { // hightlight error inputs
+            $(element)
+                .closest('.form-group').removeClass('has-success').addClass('has-error'); // set error class to the control group
+        },
+
+        unhighlight: function (element) { // revert the change done by hightlight
+            $(element)
+                .closest('.form-group').removeClass('has-error'); // set error class to the control group
+        },
+
+        success: function (label) {
+            label.addClass('valid') // mark the current input as valid and display OK icon
+            .closest('.form-group').removeClass('has-error').addClass('has-success'); // set success class to the control group
+        },
+
+        submitHandler: function (form) {
+            success.show();
+            error.hide();
+            $button.prop('disabled', true);
+            $button.html('Submit..');
+            $loader.show();
+            $userdata = $('#UserForm').serialize();
+            //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
+            $.ajax({
+                url: $url,
+                data: $userdata,
+                method : $method,
+                success: function(resp){
+                    window.location.href = window.location.origin+'/users';
+                }
+            });
+        }
+
+    });
+
+    form.submit();
+
+});
+
+/*
+* Beacon Group
+* Add Beacon Method: PUT
+*/
+$('#user-update-form').click(function(e){
+    e.preventDefault();
+
+    var $button = $(this);
+    var $method = $(this).attr('data-method');
+    $url = window.location.origin+'/users/'+$('#user_id').val();
+
+    var form = $('#user_update');
+    var error = $('.form-body .alert-danger');
+    var success = $('.form-body .alert-success');
+
+    form.validate({
+        doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
+        errorElement: 'span', //default input error message container
+        errorClass: 'help-block help-block-error', // default input error message class
+        focusInvalid: false, // do not focus the last invalid input
+        rules: {
+            first_name: {
+                minlength: 3,
+                required: true
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            status: {
+                required: true
+            }            
+        },
+
+        invalidHandler: function (event, validator) { //display error alert on form submit   
+            success.hide();
+            error.show();
+            App.scrollTo(error, -200);
+        },
+
+        highlight: function (element) { // hightlight error inputs
+            $(element)
+                .closest('.form-group').removeClass('has-success').addClass('has-error'); // set error class to the control group
+        },
+
+        unhighlight: function (element) { // revert the change done by hightlight
+            $(element)
+                .closest('.form-group').removeClass('has-error'); // set error class to the control group
+        },
+
+        success: function (label) {
+            label.addClass('valid') // mark the current input as valid and display OK icon
+            .closest('.form-group').removeClass('has-error').addClass('has-success'); // set success class to the control group
+        },
+
+        submitHandler: function (form) {
+            success.show();
+            error.hide();
+            $button.prop('disabled', true);
+            $button.html('Submit..');
+            $loader.show();
+            $userdata = $('#user_update').serialize();
+            //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
+            $.ajax({
+                url: $url,
+                data: $userdata,
+                method : $method,
+                success: function(resp){
+                    $button.prop('disabled', false);
+                    $button.html('Update User');
+                    $loader.hide();
+                    //document.getElementById("BeaconForm").reset();
+                    App.alert({ message: resp.message });
+                    success.hide();
+                    jQuery('#editUser').modal('hide');
+                    window.location.href = window.location.origin+'/users';
+                }
+            });
+        }
+
+    });
+
+    form.submit();
+
+});
+
+});
+
+/*jslint unparam: true */
+/*global window, $ */
+$(function () {
+    'use strict';
+    // Change this to the location of your server-side upload handler:
+    var url = 'http://api.wishtru.com/server/php/';
+    $('#fileupload').fileupload({
+        url: url,
+        dataType: 'json',
+        done: function (e, data) {
+            // Store image value
+            localStorage.setItem("user_picture", data.result.files[0].url);
+            //update user image
+            jQuery("#user_picture").attr("src", data.result.files[0].url);
+            jQuery(".profile-user-picture").attr("src", data.result.files[0].url);
+            //add up the url value in hidden under picture form
+            jQuery("#picture").val(data.result.files[0].url);
+            $.each(data.result.files, function (index, file) {
+                $('<p/>').text(file.name).appendTo('#files');
+            });
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#progress .progress-bar').css(
+                'width',
+                progress + '%'
+            );
+        }
+    }).prop('disabled', !$.support.fileInput)
+        .parent().addClass($.support.fileInput ? undefined : 'disabled');
+});

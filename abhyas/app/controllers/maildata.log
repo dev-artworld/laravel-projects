@@ -1,0 +1,91 @@
+App_user Object
+(
+    [connection:protected] => 
+    [table:protected] => 
+    [primaryKey:protected] => id
+    [perPage:protected] => 15
+    [incrementing] => 1
+    [timestamps] => 1
+    [attributes:protected] => Array
+        (
+            [id] => 35
+            [user_role] => 
+            [first_name] => Arun
+            [last_name] => Garg
+            [dob] => 
+            [gender] => 
+            [country] => 
+            [city] => 
+            [email] => Justarun24@gmail.com
+            [address] => 
+            [password] => 76739518c9720ff0c7f95abde1122faa
+            [picture] => img/avatar.png
+            [status] => 1
+            [confirm] => 0
+            [created_at] => 2018-07-03 21:43:51
+            [updated_at] => 2019-05-27 13:12:24
+        )
+
+    [original:protected] => Array
+        (
+            [id] => 35
+            [user_role] => 
+            [first_name] => Arun
+            [last_name] => Garg
+            [dob] => 
+            [gender] => 
+            [country] => 
+            [city] => 
+            [email] => Justarun24@gmail.com
+            [address] => 
+            [password] => 76739518c9720ff0c7f95abde1122faa
+            [picture] => img/avatar.png
+            [status] => 1
+            [confirm] => 0
+            [created_at] => 2018-07-03 21:43:51
+            [updated_at] => 2019-05-27 13:12:24
+        )
+
+    [relations:protected] => Array
+        (
+        )
+
+    [hidden:protected] => Array
+        (
+        )
+
+    [visible:protected] => Array
+        (
+        )
+
+    [appends:protected] => Array
+        (
+        )
+
+    [fillable:protected] => Array
+        (
+        )
+
+    [guarded:protected] => Array
+        (
+            [0] => *
+        )
+
+    [dates:protected] => Array
+        (
+        )
+
+    [touches:protected] => Array
+        (
+        )
+
+    [observables:protected] => Array
+        (
+        )
+
+    [with:protected] => Array
+        (
+        )
+
+    [exists] => 1
+)

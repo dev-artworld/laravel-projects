@@ -1,0 +1,1057 @@
+<?php
+
+use \App as App;
+use \View as View;
+use \Menu as Menu;
+use \User as User;
+use \Input as Input;
+use \Sentry as Sentry;
+use \Request as Request;
+use \App_user as App_user;
+use \Response as Response;
+use \Exception as Exception;
+// Import PHPMailer classes into the global namespace
+// These must be at the top of your script, not inside a function
+use PHPMailer\PHPMailer\PHPMailer;
+//use PHPMailer\PHPMailer\Exception;
+use \Admin\BaseController as BaseController;
+use \Cartalyst\Sentry\Users\UserNotFoundException as UserNotFoundException;
+//Load composer's autoloader
+require_once dirname(dirname(dirname(__FILE__))).'/public/phpmailer/vendor/autoload.php';
+
+class WebservicesController extends BaseController
+{   
+
+    public function __construct()
+    {
+        //Server settings
+        $this->mail = new PHPMailer(true);
+        $this->mail->SMTPDebug = 0;                 // Enable verbose debug output
+        $this->mail->isSMTP();                      // Set mailer to use SMTP
+        $this->mail->Host = 'wishtru.com';          // Specify main and backup SMTP servers
+        $this->mail->SMTPAuth = true;               // Enable SMTP authentication
+        $this->mail->Username = 'smtp@wishtru.com'; // SMTP username
+        $this->mail->Password = 'bX6p2h9%';         // SMTP password
+        //$this->mail->SMTPSecure = 'ssl';            // Enable TLS encryption, `ssl` also accepted
+        $this->mail->Port = 25;
+        parent::__construct();
+    }
+
+    /**
+     * display list of resource
+    */
+    public function index()
+    {
+        
+
+    }
+
+
+    public function store()
+    {
+
+
+    }
+
+    public function create()
+    {
+
+        
+    }
+
+    public function edit($id)
+    {   
+
+                
+    }
+    
+    public function show($id)
+    {   
+
+        
+    }
+
+    public function forgetpassword()
+    {
+
+        $user = "";
+        $input = Input::post();
+        $success = 'error';
+
+        if($input['email'] == ''){
+             $message[] = 'Warning! Please enter correct (EMAIL) Address.';
+        }
+
+        else{
+
+             try{
+             
+                $user = App_user::where('email', '=', $input['email'] )->get();
+
+                    if(!empty($user->toArray())){
+
+                        $success = 'success';
+                        //new password
+                        $password = $this->random_password(8);
+                        //Recipients
+                        $this->mail->setFrom('smtp@wishtru.com', 'no-reply');
+                        $this->mail->addAddress($input['email']); // Add a recipient
+                        //Content
+                        $this->mail->isHTML(true); // Set email format to HTML
+                        $this->mail->Subject = 'Password Reset for WISHtru';
+                        $this->mail->Body    = '<b>Forgot your password? Let\'s get you a new one!</b><br/><br/>You recently requested to change your password. <br/>Your password: '.$password.'<br/>';
+                        //$this->mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+                        $this->mail->send();
+                        $user_data = $user->toArray();
+                        //Get Particular App_user
+                        $update_data = App_user::find($user_data[0]['id']);
+                        //Update user password
+                        $update_data->password = md5($password);
+                        //Save function
+                        $update_data->save(); 
+
+                        $message[] = 'Thank You! Password has been successfully sent to your email inbox.';
+
+                    } else {
+
+                        $success = 'failure';
+                        $message[] = 'Failed to Recover your password, try again';
+
+                    }
+
+               }catch (Exception $e){
+                    
+                    $error = explode(' (SQL',$e->getMessage());
+                    $message[] = $error[0];
+
+                }
+        }
+
+        $return = array(
+            'status'    => $success,
+            'data'      => ($user) ? $user->toArray() : $user,
+            'message'   => $message,
+            'code'      => $success == 'success' ? 200 : 500,
+        );
+
+        echo json_encode($return);
+    }
+
+
+     public function change_password()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+        $update_data = "";
+
+        if($input['password'] == ''){
+             $message[] = 'Password required';
+        } elseif(!empty($this->checkPassword($input['password']))){
+             $message[] = $this->checkPassword($input['password']);   
+        } elseif($input['c_password'] != $input['password']){
+             $message[] = 'Password do not match.';
+        } else {
+
+            try{
+             
+                //Get Particular App_user
+                $update_data = App_user::find($input['id']);
+                //Update user password
+                $update_data->password = md5($input['password']);
+                //Save function
+                $update_data->save();
+
+                $success = 'success';
+                $message[] = 'Password has been successfully changed';
+
+            }catch (Exception $e){
+                    
+                $error = explode(' (SQL',$e->getMessage());
+                $message[] = $error[0];
+
+            }
+        }
+
+        $return = array(
+            'status'    => $success,
+            'message'   => $message,
+            'code'      => $success == 'success' ? 200 : 500,
+        );
+
+        echo json_encode($return);
+    }
+
+    public function login()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+        $loggedUser = "";
+
+
+        if($input['email'] == ''){
+             $message[] = 'Warning! Please enter correct (EMAIL) Address.';
+        }
+
+        if($input['password'] == ''){
+             $message[] = 'Warning! Please enter (PASSWORD).';
+        }
+
+        else{
+
+             try{
+             
+                $loggedUser = App_user::where('email', '=', $input['email'] )->where('password', '=', md5($input['password']) )->get();
+
+	                if(!empty($loggedUser->toArray())){
+
+		                $success = 'success';
+		                $message[] = 'Logged In';
+
+	                } else {
+
+	                	$success = 'failure';
+	                	$message[] = 'Logged Failed';
+
+	                }
+
+               }catch (Exception $e){
+                    
+                    $error = explode(' (SQL',$e->getMessage());
+                    $message[] = $error[0];
+
+                }
+        }
+
+        $return = array(
+                'status'    => $success,
+                'data'      => ($loggedUser) ? $loggedUser->toArray() : $loggedUser,
+                'message'   => $message,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+    	echo json_encode($return);
+
+    }
+
+
+    public function register()
+    {
+        $input = Input::post();
+        $success = 'error';
+
+        $user = new App_user();
+        $user->first_name  = $input['first_name'];
+        $user->last_name   = $input['last_name'];
+        $user->email       = $input['email'];
+        $user->password    = md5($input['password']);
+        $user->dob         = $input['dob'];
+        $user->gender      = $input['gender'];
+        $user->country     = $input['country'];
+        $user->city        = $input['city'];
+        $user->picture     = ($input['picture']) ? $input['picture'] : $this->defaultPicture();
+        $user->status      = 1;
+
+        if($input['first_name'] == ''){
+             $message[] = 'First name required';
+        } elseif($input['email'] == ''){
+             $message[] = 'Email required';
+        } elseif($input['password'] == ''){
+             $message[] = 'Password required';
+        } elseif(!empty($this->checkPassword($input['password']))){
+             $message[] = $this->checkPassword($input['password']);   
+        } elseif($input['c_password'] != $input['password']){
+             $message[] = 'Password do not match.';
+        } elseif($input['privacy_policy'] == "false"){
+             $message[] = 'Privacy policy required';
+        } else {
+
+             try{
+             
+                $user->save();
+                $success = 'success';
+                $message[] = 'Thank you! You have registred successfully.';
+                // send email
+                //Recipients
+                $this->mail->setFrom('smtp@wishtru.com', 'no-reply');
+                $this->mail->addAddress($input['email']); // Add a recipient
+                //Content
+                $this->mail->isHTML(true); // Set email format to HTML
+                $this->mail->Subject = 'Welcome. Thank you for joining WISHtru!';
+                $this->mail->Body    = 'You\'re on your way to great savings and being in the know with your favorite businesses. click on the below link to confirm your account <a href="http://api.wishtru.com/'.base64_encode($user->id).'/activate?token='.md5(uniqid(rand(), true)).'">Confirm account</a>';
+                //$this->mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+                $this->mail->send();
+                
+               }catch (Exception $e){
+                    
+                $error = explode(' (SQL',$e->getMessage());
+                $message[] = $error[0];
+
+            }
+        }
+
+        $return = array(
+                'status'    => $success,
+                'data'      => ($user) ? $user->toArray() : $user,
+                'message'   => $message,
+                'user_id'   => $user->id,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+    	echo json_encode($return);
+    }
+
+    public function add_wish()
+    {
+        $input = Input::post();
+        $success = 'error';
+
+        $Wish = new Wish();
+        $Wish->title        = $input['title'];
+        $Wish->description  = $input['description'];
+        $Wish->picture      = ($input['picture']) ? $input['picture'] : $this->defaultPicture();
+        $Wish->user_id      = $input['user_id'];
+        $Wish->geo_lat      = $input['geo_lat'];
+        $Wish->geo_long     = $input['geo_long'];
+        $Wish->is_fullfill  = $input['is_fullfill'];
+        $Wish->status       = 1;
+
+        if($input['title'] == ''){
+             $message[] = 'Required! (Title).';
+        } elseif($input['description'] == ''){
+             $message[] = 'Required! (Description).';
+        } elseif($input['picture'] == ''){
+             $message[] = 'Required! (Picture).';
+        } else {
+
+             try{
+             
+                $Wish->save();
+
+                $success = 'success';
+                $message[] = 'Thank you! Your wish has added successfully.';
+                // send email
+                
+               }catch (Exception $e){
+                    
+                    $error = explode(' (SQL',$e->getMessage());
+                    $message[] = $error[0];
+
+                }
+        }
+       
+        $return = array(
+                'status'    => $success,
+                'data'      => ($Wish) ? $Wish->toArray() : $Wish,
+                'message'   => $message,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+        echo json_encode($return);
+
+    }
+
+    public function upvote()
+    {
+        $input = Input::post();
+        $success = 'error';
+        $wish = "";
+
+        $wish = new Wish_upvote();
+        $wish->user_id      = $input['user_id'];
+        $wish->wish_id      = $input['wish_id'];
+        $wish->upvote       = 1;
+
+        try{
+             
+            $wish->save();
+            $success = 'success';
+            $message[] = 'Thank you! Your wish has been upvoted.';
+            
+                
+        }catch (Exception $e){
+                    
+            $error = explode(' (SQL',$e->getMessage());
+            $message[] = $error[0];
+
+        }
+
+        $return = array(
+            'status'    => $success,
+            'data'      => ($wish) ? $wish->toArray() : $wish,
+            'message'   => $message,
+            'code'      => $success == 'success' ? 200 : 500,
+        );
+
+        echo json_encode($return);
+
+    }
+
+     public function follow()
+    {
+        $input = Input::post();
+        $success = 'error';
+        $wishfollow = "";
+
+        $wish = new Wish_follower();
+        $wish->user_id      = $input['user_id'];
+        $wish->wish_id      = $input['wish_id'];
+     
+        try{
+             
+            $wish->save();
+            $success = 'success';
+            $message[] = 'Thank you! Your wish has been followed.';
+            // send email
+                
+        }catch (Exception $e){
+                    
+            $error = explode(' (SQL',$e->getMessage());
+            $message[] = $error[0];
+
+        }
+
+        $return = array(
+            'status'    => $success,
+            'data'      => ($wish) ? $wish->toArray() : $wish,
+            'message'   => $message,
+            'code'      => $success == 'success' ? 200 : 500,
+        );
+
+        echo json_encode($return);
+
+    }
+
+    public function user_follow()
+    {
+        $input = Input::post();
+        $success = 'error';
+        $wishfollow = "";
+
+        $wish = new User_follower();
+        $wish->user_id     = $input['user_id'];
+        $wish->follower_id = $input['follower_id'];
+     
+        try{
+             
+            $wish->save();
+            $success = 'success';
+            $message[] = 'Thank you! Your has been followed.';
+            // send email
+                
+        }catch (Exception $e){
+                    
+            $error = explode(' (SQL',$e->getMessage());
+            $message[] = $error[0];
+
+        }
+
+        $return = array(
+            'status'    => $success,
+            'data'      => ($wish) ? $wish->toArray() : $wish,
+            'message'   => $message,
+            'code'      => $success == 'success' ? 200 : 500,
+        );
+
+        echo json_encode($return);
+
+    }
+
+    public function wish_detail()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+        $wish_info = "";
+
+        if($input['id'] == ''){
+             $message[] = 'Warning! Please check correct (ID).';
+        }
+
+        else{
+
+             try{
+             
+                    $wish_info = Wish::where("wishes.id", "=", $input['id'])->Leftjoin('app_users', 'app_users.id', '=', 'wishes.user_id')->Leftjoin('wish_upvotes', 'wish_upvotes.wish_id', '=', 'wishes.id')->Leftjoin('wish_followers', 'wish_followers.wish_id', '=', 'wishes.id')->select('app_users.id as user_id','app_users.first_name','app_users.last_name','app_users.picture as user_thumb','wishes.*','wish_upvotes.id as upvoted','wish_followers.id as followed')->orderBy('wishes.id', 'desc')->get()->toArray();
+
+                    $wish_info[0]['time'] = $this->time_elapsed_string($wish_info[0]['created_at']);
+                    $wish_info[0]['upvotes'] = count(Wish_upvote::where("wish_id", "=", $wish_info[0]['id'])->get()->toArray());
+
+                    if(!empty($wish_info)){
+
+                        $success = 'success';
+                        $message[] = 'wish information.';
+
+                    } else {
+
+                        $success = 'failure';
+                        $message[] = 'Warning!';
+
+                    }
+
+               }catch (Exception $e){
+                    
+                    $error = explode(' (SQL',$e->getMessage());
+                    $message[] = $error[0];
+
+                }
+        }
+
+        $return = array(
+            'status'    => $success,
+            'data'      => $wish_info,
+            'message'   => $message,
+            'code'      => $success == 'success' ? 200 : 500,
+        );
+
+        echo json_encode($return);
+
+    }
+
+    public function profile()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+        $user = "";
+
+        if($input['id'] == ''){
+             $message[] = 'Warning! Please check correct (ID).';
+        }
+
+        else{
+
+             try{   
+
+                    $MyWishes = array();
+             
+                    $userInfo = App_user::where("app_users.id", "=", $input['id'])->Leftjoin('wishes', 'wishes.user_id', '=', 'app_users.id')->select('app_users.id as user_id','app_users.first_name','app_users.last_name','app_users.city','app_users.country','app_users.picture','app_users.email','app_users.dob','app_users.gender','wishes.*')->get()->toArray();
+
+                    foreach ($userInfo as $key => $value) {
+                        # wish...upvote
+                        $MyWishes[$key] = $value;
+                        $MyWishes[$key]['time'] = $this->time_elapsed_string($value['created_at']);
+                        $MyWishes[$key]['upvotes'] = count(Wish_upvote::where("wish_id", "=", $value['id'])->get()->toArray());
+                    }
+
+                    if(!empty($MyWishes)){
+
+                        $success = 'success';
+
+                        $message[] = 'Thank you! current logged in user information.';
+
+                    } else {
+
+                        $success = 'failure';
+
+                        $message[] = 'Warning! Failed';
+
+                    }
+
+               }catch (Exception $e){
+                    
+                    $error = explode(' (SQL',$e->getMessage());
+                    $message[] = $error[0];
+
+                }
+        }
+
+        $return = array(
+                'status'    => $success,
+                'data'      => $MyWishes,
+                'message'   => $message,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+        echo json_encode($return);
+
+    }
+
+    public function wish_list()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+
+        try{
+            
+            $HomeWishes = array();
+
+            $wishes = Wish::where("wishes.status", "=", 1)->Leftjoin('app_users', 'app_users.id', '=', 'wishes.user_id')->select('app_users.id as user_id','wishes.*')->orderBy('id', 'desc')->limit(5)->get()->toArray();
+
+            foreach ($wishes as $key => $value) {
+                # wish...upvote
+                $HomeWishes[$key] = $value;
+                $HomeWishes[$key]['time'] = $this->time_elapsed_string($value['created_at']);
+                $HomeWishes[$key]['upvotes'] = count(Wish_upvote::where("wish_id", "=", $value['id'])->get()->toArray());
+                $date1 = date_create(date('Y-m-d', strtotime($value['created_at'])));
+                $date2 = date_create(date('Y-m-d'));
+                $diff=date_diff($date1,$date2);
+                $HomeWishes[$key]['recent'] = $diff->format("%a");
+
+            }
+
+            if(!empty($HomeWishes)){
+
+                $success = 'success';
+                $message[] = 'Get data';
+
+            } else {
+
+                $success = 'failure';
+                $message[] = 'Warning! Failed';
+
+            }
+
+        }catch (Exception $e){
+                
+            $error = explode(' (SQL',$e->getMessage());
+            $message[] = $error[0];
+
+        }
+
+        $return = array(
+                'status'    => $success,
+                'data'      => $HomeWishes,
+                'message'   => $message,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+        echo json_encode($return);
+
+    }
+
+    public function wishes()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+
+        try{
+            
+            $HomeWishes = array();
+
+            $wishes = Wish::where("wishes.status", "=", 1)->Leftjoin('app_users', 'app_users.id', '=', 'wishes.user_id')->select('app_users.id as user_id','wishes.*')->orderBy('id', 'desc')->get()->toArray();
+
+            foreach ($wishes as $key => $value) {
+                # wish...upvote
+                $HomeWishes[$key] = $value;
+                $HomeWishes[$key]['time'] = $this->time_elapsed_string($value['created_at']);
+                $HomeWishes[$key]['upvotes'] = count(Wish_upvote::where("wish_id", "=", $value['id'])->get()->toArray());
+            }
+
+            if(!empty($HomeWishes)){
+
+                $success = 'success';
+                $message[] = 'Get data';
+
+            } else {
+
+                $success = 'failure';
+                $message[] = 'Warning! Failed';
+
+            }
+
+        }catch (Exception $e){
+                
+            $error = explode(' (SQL',$e->getMessage());
+            $message[] = $error[0];
+
+        }
+
+        $return = array(
+                'status'    => $success,
+                'data'      => $HomeWishes,
+                'message'   => $message,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+        echo json_encode($return);
+
+    }
+      public function chat_module()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+
+        //get all users
+        //get all chat
+       // $this->data['chat'] = wish_chat_messages::get()->toArray();
+      //  file_put_contents(dirname(__FILE__)."/input.log",print_r($this->data['chat'],true),FILE_APPEND);
+     /*   $this->data['chat'] = wish_chat_messages::join('app_users', 'wish_chat_messages.user_id', '=', 'app_users.id')->select('wish_chat_messages.*', 'app_users.first_name', 'app_users.last_name')->orderBy('id', 'desc')->get()->toArray();*/
+
+        try{
+            $ChatHistory = array();
+            $this->data['users'] = App_user::get()->toArray();
+            $chats = wish_chat_messages::join('app_users', 'wish_chat_messages.user_id', '=', 'app_users.id')->select('wish_chat_messages.*', 'app_users.first_name', 'app_users.last_name')->orderBy('id', 'desc')->get()->toArray();
+
+            foreach ($chats as $key => $value) {
+                # wish...upvote
+                $ChatHistory[$key] = $value;
+                $HomeWishes[$key]['time'] = $this->time_elapsed_string($value['created_at']);
+                
+            }
+           if(!empty($ChatHistory)){
+
+                $success = 'success';
+                $message[] = 'Get data';
+
+            } else {
+
+                $success = 'failure';
+                $message[] = 'Warning! Failed';
+
+            }
+
+        }catch (Exception $e){
+                
+            $error = explode(' (SQL',$e->getMessage());
+            $message[] = $error[0];
+
+        }
+
+        $return = array(
+                'status'    => $success,
+                'data'      => $ChatHistory,
+                'message'   => $message,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+        echo json_encode($return);
+
+    }
+
+    public function wishesbyuser()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+
+        try{
+            
+            $HomeWishes = array();
+
+            $wishes = Wish::where("wishes.user_id", "=", $input['user_id'])->Leftjoin('app_users', 'app_users.id', '=', 'wishes.user_id')->select('app_users.id as user_id','wishes.*')->orderBy('id', 'desc')->limit(5)->get()->toArray();
+
+            foreach ($wishes as $key => $value) {
+                # wish...upvote
+                $HomeWishes[$key] = $value;
+                $HomeWishes[$key]['time'] = $this->time_elapsed_string($value['created_at']);
+                $HomeWishes[$key]['upvotes'] = count(Wish_upvote::where("wish_id", "=", $value['id'])->get()->toArray());
+                $date1 = date_create(date('Y-m-d', strtotime($value['created_at'])));
+                $date2 = date_create(date('Y-m-d'));
+                $diff=date_diff($date1,$date2);
+                $HomeWishes[$key]['recent'] = $diff->format("%a");
+
+            }
+
+            if(!empty($HomeWishes)){
+
+                $success = 'success';
+                $message[] = 'Get data';
+
+            } else {
+
+                $success = 'failure';
+                $message[] = 'Warning! Failed';
+
+            }
+
+        }catch (Exception $e){
+                
+            $error = explode(' (SQL',$e->getMessage());
+            $message[] = $error[0];
+
+        }
+
+        $return = array(
+                'status'    => $success,
+                'data'      => $HomeWishes,
+                'message'   => $message,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+        echo json_encode($return);
+
+    }
+
+    public function wishfollower()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+
+        try{
+            
+            $HomeWishes = array();
+
+            $wishes = Wish_follower::where("wish_followers.user_id", "=", $input['user_id'])->Leftjoin('app_users', 'app_users.id', '=', 'wish_followers.user_id')->Leftjoin('wishes', 'wishes.id', '=', 'wish_followers.wish_id')->select('app_users.id as user_id','wishes.*')->orderBy('id', 'desc')->limit(5)->get()->toArray();
+
+            foreach ($wishes as $key => $value) {
+                # wish...upvote
+                $HomeWishes[$key] = $value;
+                $HomeWishes[$key]['time'] = $this->time_elapsed_string($value['created_at']);
+                $HomeWishes[$key]['upvotes'] = count(Wish_upvote::where("wish_id", "=", $value['id'])->get()->toArray());
+            }
+
+            if(!empty($HomeWishes)){
+
+                $success = 'success';
+                $message[] = 'Get data';
+
+            } else {
+
+                $success = 'failure';
+                $message[] = 'Warning! Failed';
+
+            }
+
+        }catch (Exception $e){
+                
+            $error = explode(' (SQL',$e->getMessage());
+            $message[] = $error[0];
+
+        }
+
+        $return = array(
+                'status'    => $success,
+                'data'      => $HomeWishes,
+                'message'   => $message,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+        echo json_encode($return);
+
+    }
+
+
+
+    public function userfollowers()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+
+        try{
+            
+            $followed = array();
+
+            $users = User_follower::where("user_followers.user_id", "=", $input['user_id'])->Leftjoin('app_users', 'app_users.id', '=', 'user_followers.follower_id')->select('user_followers.id as follow_id','user_followers.follower_id','app_users.*')->orderBy('user_followers.id', 'desc')->get()->toArray();
+
+            foreach ($users as $key => $value) {
+                # wish...upvote
+                $followed[$key] = $value;
+                $followed[$key]['time'] = date('h:i A',strtotime($value['created_at']));
+                $followed[$key]['wishes'] = count(Wish::where("user_id", "=", $value['follower_id'])->get()->toArray());
+            }
+
+            if(!empty($followed)){
+
+                $success = 'success';
+                $message[] = 'Get data';
+
+            } else {
+
+                $success = 'failure';
+                $message[] = 'Warning! Failed';
+
+            }
+
+        }catch (Exception $e){
+                
+            $error = explode(' (SQL',$e->getMessage());
+            $message[] = $error[0];
+
+        }
+
+        $return = array(
+                'status'    => $success,
+                'data'      => $followed,
+                'message'   => $message,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+        echo json_encode($return);
+
+    }
+
+    public function edit_profile()
+    {
+
+        $input = Input::post();
+        $success = 'error';
+
+        file_put_contents(dirname(__FILE__).'/profile.log', print_r($input, true));
+
+        if($input['fname'] == ''){
+             $message[] = 'First name required';
+        } elseif($input['dob'] == ''){
+             $message[] = 'DOB required';
+        } else {
+
+             try{
+             
+                    //Get Particular User
+                    $user_data = App_user::find($input['id']);
+
+                    if(!empty($user_data->toArray())){
+
+                        $user_data->first_name  = $input['fname'];
+                        $user_data->last_name   = $input['lname'];
+                        $user_data->country     = $input['country'];
+                        $user_data->dob         = $input['dob'];
+                        $user_data->city        = $input['city'];
+                        $user_data->gender      = $input['gender'];
+                        $user_data->picture     = $input['picture'];
+
+                        //Save function
+                        $user_data->save(); 
+
+                        $success = 'success';
+                        $message[] = 'Thank you! Your profile information has been successfully updated.';
+
+                    } else {
+
+                        $success = 'failure';
+                        $message[] = 'Warning! Failed';
+
+                    }
+
+               }catch (Exception $e){
+                    
+                    $error = explode(' (SQL',$e->getMessage());
+                    $message[] = $error[0];
+
+                }
+        }
+
+        $return = array(
+                'status'    => $success,
+                'data'      => ($user_data) ? $user_data->toArray() : $user_data,
+                'message'   => $message,
+                'code'      => $success == 'success' ? 200 : 500,
+            );
+
+        echo json_encode($return);
+
+    }
+
+    public function user_device_token()
+    {
+
+        $input = Input::post();
+
+        $user_device = App_device_token::where("user_id", "=", $input['user_id'])->where("device_token", "=", $input['device_token'])->get()->toArray();
+
+               file_put_contents(dirname(__FILE__)."/push.log", print_r($input, true));
+
+        if(!empty($user_device)):
+           
+            $logged_user_device = App_device_token::find($user_device[0]["id"]);
+
+            $logged_user_device->user_id      = $input['user_id'];
+            $logged_user_device->device_type  = $input['device_type'];
+            $logged_user_device->device_token = $input['device_token'];
+            $logged_user_device->uuid         = $input['uuid'];
+
+            $logged_user_device->save();
+
+        else:
+
+            //file_put_contents(dirname(__FILE__)."/push1.log", print_r($input, true));
+            
+            $_device_token = new App_device_token();
+
+            $_device_token->user_id      = $input['user_id'];
+            $_device_token->device_type  = $input['device_type'];
+            $_device_token->device_token = $input['device_token'];
+            $_device_token->uuid         = $input['uuid'];
+
+            $_device_token->save();
+
+        endif;
+
+    }
+
+    public function initial_chat()
+    {
+
+        $input = Input::post();
+        file_put_contents(dirname(__FILE__).'/chat.log', print_r($input, true), FILE_APPEND);
+
+    }
+
+    function time_elapsed_string($datetime, $full = false) {
+        $now = new DateTime;
+        $ago = new DateTime($datetime);
+        $diff = $now->diff($ago);
+
+        $diff->w = floor($diff->d / 7);
+        $diff->d -= $diff->w * 7;
+
+        $string = array(
+            'y' => 'Year',
+            'm' => 'Month',
+            'w' => 'Week',
+            'd' => 'Day',
+            'h' => 'Hour',
+            'i' => 'Minute',
+            's' => 'Second',
+        );
+        foreach ($string as $k => &$v) {
+            if ($diff->$k) {
+                $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
+            } else {
+                unset($string[$k]);
+            }
+        }
+
+        if (!$full) $string = array_slice($string, 0, 1);
+        return $string ? implode(', ', $string) . ' ago' : 'just now';
+    }
+
+    public function random_password( $length = 8 ) {
+        $chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHIJKMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-=+;:,.?";
+        $password = substr( str_shuffle( $chars ), 0, $length );
+        return $password;
+    }
+
+    public function checkPassword($pwd) {
+        
+        $errors = "";
+
+        if (strlen($pwd) < 8) {
+            $errors = "Password too short!";
+        }
+
+        if (!preg_match("#[0-9]+#", $pwd)) {
+            $errors = "Password must include at least one number!";
+        }
+
+        if (!preg_match("#[A-Z]+#", $pwd)) {
+            $errors = "Password must include at least one uppercase letter!";
+        }
+
+        if (!preg_match("#[a-z]+#", $pwd)) {
+            $errors = "Password must include at least one lowercase letter!";
+        }
+
+        if (!preg_match('/[\'^£$%&*()}{@#~?><>,|=_+¬-]/', $pwd)) {
+            $errors = "Password must include at least one special character!";
+        }
+        
+        return $errors;
+    }
+
+    public function defaultPicture(){
+
+        $image = 'img/splash-logo.png';
+
+        return $image;
+
+    }
+
+
+}

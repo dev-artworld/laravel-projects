@@ -1,0 +1,168 @@
+{% extends 'admin/index.twig' %}
+{% block content %}
+<div class="page-content">
+   <!-- BEGIN BREADCRUMBS -->
+   <div class="breadcrumbs">
+      <!--<h1>Campaigns</h1>-->
+      <ol class="breadcrumb">
+         <li>
+            <a href="/admin">Dashboard</a>
+         </li>
+         <li class="active">Messages</li>
+      </ol>
+      <!-- Sidebar Toggle Button -->
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".page-sidebar">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="toggle-icon">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      </span>
+      </button>
+      <!-- Sidebar Toggle Button -->
+   </div>
+   <!-- END BREADCRUMBS -->
+   <!-- BEGIN SIDEBAR CONTENT LAYOUT -->
+   <div class="page-content-container">
+      <div class="page-content-row">
+         <!-- BEGIN PAGE SIDEBAR -->
+         <div class="page-sidebar">
+            <nav class="navbar" role="navigation">
+               <!-- Brand and toggle get grouped for better mobile display -->
+               <!-- Collect the nav links, forms, and other content for toggling -->
+               <ul class="nav navbar-nav margin-bottom-35">
+               <h3>Quick Actions</h3>
+              <ul class="nav navbar-nav">
+                 <li>
+                    <a href="/admin">
+                      <i class="fa fa-tachometer"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="/users">
+                    <i class="fa fa-users"></i> Users
+                    </a>
+                 </li>
+                 <li>  
+                    <a href="/profile">
+                      <i class="fa fa-user"></i> Profile 
+                    </a>
+                 </li>
+                  <li>
+                    <a href="/mathematics">
+                      <i class="fa fa-book"></i> Pages
+                    </a>
+                 </li>
+                     <li>
+                    <a href="/categories">
+                      <i class="fa fa-list-alt"></i> Category
+                    </a>
+                 </li>
+                    <li>
+                    <a href="/staff ">
+                      <i class="fa fa-users"></i> Staff
+                    </a>
+                 </li>
+                     <li>
+                    <a href="/comments ">
+                      <i class="fa fa-comments-o"></i> Comments
+                    </a>
+                 </li>
+              </ul
+              <!-- users -->
+               <div id="Messages" class="modal fade" tabindex="-1" data-width="450">
+                    <div class="modal-header">
+                       <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                       <h4 class="modal-title">Messages</h4>
+                    </div>
+                    <div class="modal-body">
+                       <div class="row">
+                          <div class="col-sm-12 frame">
+                            <ul></ul>
+                          </div>
+                       </div>
+                    </div>
+                    <div class="modal-footer">
+                       <button type="button" data-dismiss="modal" class="btn btn-outline dark">Cancel</button>
+                    </div>
+                 </div>
+             </nav>
+         </div>
+         <!-- END PAGE SIDEBAR -->
+         <div class="page-content-col">
+            <!-- BEGIN PAGE BASE CONTENT -->
+            <div class="row">
+               <div class="col-md-12">
+                  <!-- BEGIN EXAMPLE TABLE PORTLET-->
+                  <div class="portlet light bordered">
+                     <div class="portlet-title">
+                        <div class="caption font-dark">
+                           <i class="fa fa-rss"></i>
+                           <span class="caption-subject bold uppercase"> Messages </span>
+                        </div>
+                     </div>
+                     <div class="portlet-body">
+                        <table class="table table-striped table-bordered table-hover table-checkable order-column" id="sample_1">
+                           <thead>
+                              <tr>
+                                 <th>
+                                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                    <input type="checkbox" class="group-checkable" data-set="#sample_1 .checkboxes" />
+                                    <span></span>
+                                    </label>
+                                 </th>
+                                 <th> ID </th>
+                                 <th> Wish title </th>
+                                 <th> Sender </th>
+                                 <th> Receiver </th>
+								                 <th> Time </th>
+                                 <th> Actions </th>                             
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {% for message in messages %}
+                              <tr row-id="{{ message.id|e }}" class="odd gradeX">
+                                <td>
+                                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                    <input type="checkbox" class="checkboxes" value="{{ message.id|e }}" />
+                                    <span></span>
+                                    </label>
+                                 </td>
+                                 <td>{{ message.id|e }}</td>
+                                 <td>{{ message.chat_wish|raw }}</td>
+                                 <td>{{ message.sender|raw }}</td>
+                                 <td>{{ message.receiver|raw }}</td>
+                                 <td>{{ message.created_at|e }}</td>
+                                 <td>
+                                    <div class="btn-group">
+                                       <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> Actions
+                                       <i class="fa fa-angle-down"></i>
+                                       </button>
+                                       <ul class="dropdown-menu pull-left" role="menu">
+                                         <li>
+                                             <a href="javascript:void(0)" data-receiver-id="{{ message.receiver_id|e }}" data-wish-id="{{ message.chat_wish_id|e }}" data-sender-id="{{ message.sender_id|e }}" class="openMessages"> <i class="fa fa-eye"></i> View</a>
+                                          </li>
+                                          <li>
+                                             <a class="button-message-delete" data-receiver-id="{{ message.receiver_id|e }}" data-wish-id="{{ message.chat_wish_id|e }}" data-sender-id="{{ message.sender_id|e }}" data-method="DELETE" data-message-id="{{message.id}}" href="javascript:void(0);">
+                                             <i class="fa fa-minus-circle"></i> Delete </a>
+                                          </li>
+                                       </ul>
+                                       <!-- END EXAMPLE TABLE PORTLET-->
+                                    </div>
+                                 </td>
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+                  <!-- END EXAMPLE TABLE PORTLET-->
+               </div>
+            </div>
+            <!-- END PAGE BASE CONTENT -->
+         </div>
+      </div>
+   </div>
+   <!-- END SIDEBAR CONTENT LAYOUT -->
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#2196f3">
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap:">
+  <title>ਅਭਿਆਸ</title>
+  <link rel="stylesheet" href="css/framework7.min.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="apple-touch-icon" href="img/f7-icon-square.png">
+  <link rel="icon" href="img/f7-icon.png">
+  <link rel="stylesheet" href="pdfjs-dist/web/pdf_viewer.css">
+  <!-- <link rel="stylesheet" type="text/css" href="css/viewer.css"> -->
+</head>
+<body>
+  <div id="app">
+    <div class="statusbar"></div>
+    <div class="panel panel-left panel-cover">
+      <div class="page">
+        <div class="page-content">
+          <div class="block-title">ਅਭਿਆਸ</div>
+          <div class="list links-list">
+            <ul>            
+              <li>
+                <a href="/main/" class="panel-close"><i class="material-icons">home</i> Home</a>
+              </li>
+              <li>
+                <a href="/list/" class="panel-close"><i class="material-icons">home</i> Chapters</a>
+              </li>
+              <li>
+                <a href="/experts/" class="panel-close"><i class="material-icons">home</i> Experts</a>
+              </li>
+              <li>
+                <a href="/privacy-policy/" class="panel-close"><i class="material-icons">description</i>Privacy Policy</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" onclick="logout();" class="panel-close"><i class="f7-icons">logout_fill</i> Log Out</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-right panel-reveal">
+      <div class="view view-init view-right" name="right" data-url="/">
+        <div class="page">
+          <div class="navbar">
+            <div class="navbar-inner sliding">
+              <div class="title">Right Panel</div>
+            </div>
+          </div>
+          <div class="page-content">
+            <div class="block">
+              <p>This is a right side panel. You can close it by clicking outsite or on this link: <a href="#" class="panel-close">close me</a>. You can put here anything, even another isolated view.</p>
+            </div>
+            <div class="block-title">Panel Navigation</div>
+            <div class="list links-list">
+              <ul>
+                <li><a href="/panel-right-1/">Right panel page 1</a></li>
+                <li><a href="/panel-right-2/">Right panel page 2</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="view view-main view-init ios-edges" data-url="/">
+      <div class="page">
+      <div id="splash">
+      <img src="/img/painting.png"/></div>  
+    </div>
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script type="text/javascript" src="js/framework7.js"></script>
+  <script type="text/javascript" src="cordova.js"></script>
+  <script type="text/javascript" src="js/routes.js"></script>
+  <script type="text/javascript" src="js/push.js"></script>
+  <!-- <script src="http://mozilla.github.io/pdf.js/build/pdf.js"></script> -->
+  <script type="text/javascript" src="pdfjs-dist/build/pdf.js"></script>
+  <script type="text/javascript" src="pdfjs-dist/web/pdf_viewer.js"></script>
+  <script type="text/javascript" src="js/app.js"></script>
+  <script type="text/javascript" src="js/jScript.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</body>
+</html>

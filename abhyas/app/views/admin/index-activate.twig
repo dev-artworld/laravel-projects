@@ -1,0 +1,13 @@
+{% extends 'master.twig' %}
+
+{% block body %}
+    <!-- BEGIN CONTAINER -->
+    <div class="wrapper">
+        <div class="container-fluid">
+            {% block content %}
+                {% include 'admin/dashboard.twig' %}
+            {% endblock %}
+        </div>
+    </div>
+    <!-- END CONTAINER -->
+{% endblock %}

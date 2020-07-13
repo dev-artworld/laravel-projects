@@ -1,0 +1,12 @@
+Array
+(
+    [id] => 22
+    [fname] => Test user 
+    [lname] => Test
+    [dob] => 1992-01-01
+    [city] => Pune
+    [gender] => Female
+    [country] => Switzerland
+    [language] => de-DE
+    [picture] => http://api.wishtru.com/assets/thumbnails/238fzp.jpg
+)

@@ -1,0 +1,19 @@
+.pac-container{
+	z-index: 10510 !important;
+}
+#form_wizard_1 .help-block {
+  color: #4db5b5;
+  float: left;
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 0;
+  padding-left: 27%;
+  text-align: left;
+  width: 100%;
+}
+.form-control::-moz-placeholder {
+  color: #fe9a9a;
+  font-size: 13px;
+  font-style: italic;
+  opacity: 1;
+}

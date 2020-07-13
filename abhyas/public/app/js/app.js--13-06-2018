@@ -1,0 +1,108 @@
+// Dom7
+var $ = Dom7;
+
+// Theme
+var theme = 'auto';
+if (document.location.search.indexOf('theme=') >= 0) {
+  theme = document.location.search.split('theme=')[1].split('&')[0];
+}
+
+// Init App
+var app = new Framework7({
+  id: 'io.framework7.testapp',
+  root: '#app',
+  theme: theme,
+  data: function () {
+    return {
+      user: {
+        firstName: 'John',
+        lastName: 'Doe',
+      },
+    };
+  },
+  methods: {
+    helloWorld: function () {
+      app.dialog.alert('Hello World!');
+    },
+  },
+  routes: routes,
+  vi: {
+    placementId: 'pltd4o7ibb9rc653x14',
+  },
+});
+
+// Option 2. Using live 'page:init' event handlers for each page
+$(document).on('page:init', '.page[data-name="chapter"]', function (e) {
+  var data;
+
+   var settings = {
+          "async": true,
+          "crossDomain": true,
+          "url": "http://abhyas.retouchingwork.org/webservices/all_pages",
+          "method": "GET",
+          "headers": {
+            "authorization": "Basic YXJ0d29ybGQ6YWRtaW4hQCMxMjM5Nw==",
+            "cache-control": "no-cache",
+            "postman-token": "3512ee26-4169-cb78-8c49-b6b31e6054a1"
+          }
+            
+ }
+
+    jQuery.ajax(settings).done(function (response) {
+      chapter = JSON.parse(response);
+      console.log(chapter);
+      lhtml ="";
+     
+      jQuery.each( chapter.data, function( key, value ) {
+        lhtml +='<li><a href="/list_2/">'+value.title+'</a></li>'
+
+         console.log(value.title);
+           
+          });
+      jQuery('.list').html(lhtml);
+      
+     });
+  // Do something here when page with data-name="about" attribute loaded and initialized
+
+ // alert('page load');
+
+})
+
+
+// Option 2. Using live 'page:init' event handlers for each page
+$(document).on('page:init', '.page[data-name="days"]', function (e) {
+ //  var data;
+
+ //   var settings = {
+ //          "async": true,
+ //          "crossDomain": true,
+ //          "url": "http://abhyas.retouchingwork.org/webservices/all_pages",
+ //          "method": "GET",
+ //          "headers": {
+ //            "authorization": "Basic YXJ0d29ybGQ6YWRtaW4hQCMxMjM5Nw==",
+ //            "cache-control": "no-cache",
+ //            "postman-token": "3512ee26-4169-cb78-8c49-b6b31e6054a1"
+ //          }
+            
+ // }
+
+ //    jQuery.ajax(settings).done(function (response) {
+ //      chapter = JSON.parse(response);
+ //      console.log(chapter);
+ //      lhtml ="";
+     
+ //      jQuery.each( chapter.data, function( key, value ) {
+ //        lhtml +='<li><a href="/list_2/">'+value.title+'</a></li>'
+
+ //         console.log(value.title);
+           
+ //          });
+ //      jQuery('.list').html(lhtml);
+      
+ //     });
+  // Do something here when page with data-name="about" attribute loaded and initialized
+
+  alert('page load');
+
+})
+

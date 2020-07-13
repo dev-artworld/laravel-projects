@@ -1,0 +1,23 @@
+<div class="page" data-name="viewer">
+  <div class="navbar">
+    <div class="navbar-inner sliding">
+      <div class="left">
+        <a href="/list_2/" class="link back">
+          <i class="icon icon-back"></i>
+          <span class="ios-only">Back</span>
+        </a>
+      </div>
+      <div class="title">Document Viewer</div>
+    </div>
+  </div>
+  <div class="page-content">
+      <div class="pdfbuttons">
+        <button id="prev"><i class="icon icon-prev"></i></button>
+        <button id="next"><i class="icon icon-next"></i></button>
+        &nbsp; &nbsp;
+        <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+      </div>
+
+      <canvas id="the-canvas"></canvas>
+  </div>
+</div>

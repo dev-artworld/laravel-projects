@@ -1,0 +1,25 @@
+ApnsPHP_Message Object
+(
+    [_bAutoAdjustLongPayload:protected] => 1
+    [_aDeviceTokens:protected] => Array
+        (
+            [0] => 0b50fa5825961a4b6ea13e7001e9e599beec2e291f9f35d70e68442526b618a4
+        )
+
+    [_sText:protected] => Hello APNs-enabled device!
+    [_nBadge:protected] => 1
+    [_sSound:protected] => default
+    [_aCustomProperties:protected] => Array
+        (
+            [notification_id] => 1030
+            [user_name] => Sven
+            [user_avatar] => http://api.wishtru.com/assets/thumbnails/x8g03a.jpg
+            [chat_time] => Friday, Jan 5 01:04
+            [sender_id] => 2
+            [chat_wish_id] => 10
+            [receiver_id] => 1
+        )
+
+    [_nExpiryValue:protected] => 3600
+    [_mCustomIdentifier:protected] => Message-Badge-3
+)
